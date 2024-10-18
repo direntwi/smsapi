@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Sender</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Send SMS</h1>
+    <form id="smsForm">
+        <label for="msisdn">Phone Number:</label>
+        <input type="text" id="msisdn" name="msisdn" required><br><br>
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" required></textarea><br><br>
+        <button type="submit">Send Message</button>
+    </form>
+
+    <h2>Status Updates</h2>
+    <div id="statusBox">
+        <p>No updates yet.</p>
+    </div>
+
+    <script>
+        // Send SMS via AJAX
+        $("#smsForm").submit(function(event) {
+            event.preventDefault(); // Prevent the form from refreshing the page
+
+            $.ajax({
+                url: "/send-sms/",  // Django URL for sending the SMS
+                method: "POST",
+                data: {
+                    msisdn: $("#msisdn").val(),
+                    message: $("#message").val(),
+                    csrfmiddlewaretoken: '{{ csrf_token }}'  // Add CSRF token for security
+                },
+                success: function(response) {
+                    // Show initial response in the status box
+                    $("#statusBox").html("<p>Job started: " + response.message + "</p>");
+                },
+                error: function(xhr, status, error) {
+                    $("#statusBox").html("<p>Error: Failed to send SMS</p>");
+                }
+            });
+        });
+
+        // Poll or use WebSockets here to update the status when DLRs arrive
+    </script>
+</body>
+</html>
