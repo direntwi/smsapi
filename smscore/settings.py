@@ -126,3 +126,8 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+API_URL = os.environ.get("API_URL")
+KEY = os.environ.get("KEY")
+SENDER_ID = os.environ.get("SENDER_ID")
+CALLBACK_URL = os.environ.get("CALLBACK_URL")
