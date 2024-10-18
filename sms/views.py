@@ -22,7 +22,7 @@ def send_sms(request):
         try:
             response = requests.post(settings.API_URL, data=data)
             if response.status_code == 200:
-                return JsonResponse({"response": response.json()})
+                return JsonResponse(response.json())
             else:
                 return JsonResponse({'success': False, 'message': 'Failed to send message.'})
         except Exception as e:
