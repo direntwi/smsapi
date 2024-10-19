@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
+
 import os
 from pathlib import Path
 
@@ -29,7 +30,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -131,3 +132,6 @@ API_URL = os.environ.get("API_URL")
 KEY = os.environ.get("KEY")
 SENDER_ID = os.environ.get("SENDER_ID")
 CALLBACK_URL = os.environ.get("CALLBACK_URL")
+NGROK_URL = os.environ.get("NGROK_URL")
+
+CSRF_TRUSTED_ORIGINS = [NGROK_URL]

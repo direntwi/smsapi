@@ -5,14 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMS Sender</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Add styles for the statusBox */
+        #statusBox {
+            border: 2px solid black;   /* Black outline */
+            padding: 20px;             /* Padding inside the box */
+            width: 20%;                /* Adjust width as needed */
+            height: 230px;             /* Set height as per your preference */
+            overflow-y: auto;          /* Add scrolling if content exceeds the height */
+            margin-top: 20px;          /* Add space above the box */
+        }
+    </style>
 </head>
 <body>
     <h1>Send SMS</h1>
     <form id="smsForm">
-        <label for="msisdn">Phone Number:</label>
-        <input type="text" id="msisdn" name="msisdn" required><br><br>
-        <label for="message">Message:</label>
-        <textarea id="message" name="message" required></textarea><br><br>
+        <label for="msisdn">Phone Number:</label><br>
+        <input type="text" id="msisdn" name="msisdn" required><br><br>       
+        <label for="message">Message:</label><br>
+        <textarea id="message" name="message" rows="4" cols="50" required></textarea><br><br>
         <button type="submit">Send Message</button>
     </form>
 
@@ -22,29 +33,58 @@
     </div>
 
     <script>
-        // Send SMS via AJAX
-        $("#smsForm").submit(function(event) {
-            event.preventDefault(); // Prevent the form from refreshing the page
+        let lastLine = '';  // To store the last checked line
 
-            $.ajax({
-                url: "/send-sms/",  // Django URL for sending the SMS
-                method: "POST",
-                data: {
-                    msisdn: $("#msisdn").val(),
-                    message: $("#message").val(),
-                    csrfmiddlewaretoken: '{{ csrf_token }}'  // Add CSRF token for security
+        // Function to poll the log file
+        function pollLogFile() {
+            console.log('Polling the log file...');
+
+            fetch('/dlr-updates/')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Log data received:', data);  // Check what is being returned
+                    // const newLine = data.last_line ? data.last_line.trim() : '';  // Trim any extra spaces/newlines
+
+                    // Check if the last line has changed
+                    if (data && data !== lastLine) {
+                        lastLine = data;  // Update lastLine with new content
+                        document.getElementById('statusBox').innerHTML = `<pre>${JSON.stringify(data, null, 4)}</pre>`;
+                        console.log('Updated status box with new line:', newLine);  // Log the update
+                    } else {
+                        console.log('No new updates found in the log file.');
+                    }
+                })
+                .catch(error => console.error('Error checking log file:', error));
+        }
+
+        // Function to handle the initial SMS form submission
+        document.getElementById('smsForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('/send-sms/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
                 },
-                success: function(response) {
-                    // Show initial response in the status box
-                    $("#statusBox").html("<p>Job started: " + response.message + "</p>");
-                },
-                error: function(xhr, status, error) {
-                    $("#statusBox").html("<p>Error: Failed to send SMS</p>");
-                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Initial response received:', data);
+
+                // Display the first response
+                document.getElementById('statusBox').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+
+                // Start polling after the first response
+                setInterval(pollLogFile, 5000);
+            })
+            .catch(error => {
+                console.error('Error sending message:', error);
+                document.getElementById('statusBox').innerText = 'Failed to send message.';
             });
         });
-
-        // Poll or use WebSockets here to update the status when DLRs arrive
     </script>
 </body>
 </html>
