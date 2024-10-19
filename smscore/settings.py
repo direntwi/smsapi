@@ -36,6 +36,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -44,6 +45,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "sms",
 ]
+
+ASGI_APPLICATION = "smscore.asgi.application"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -135,3 +138,9 @@ CALLBACK_URL = os.environ.get("CALLBACK_URL")
 NGROK_URL = os.environ.get("NGROK_URL")
 
 CSRF_TRUSTED_ORIGINS = [NGROK_URL]
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    }
+}
