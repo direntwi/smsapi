@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Sender</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Add styles for the statusBox */
+        #statusBox {
+            border: 2px solid black;   /* Black outline */
+            padding: 20px;             /* Padding inside the box */
+            width: 40%;                /* Adjust width as needed */
+            height: 230px;             /* Set height as per your preference */
+            overflow-y: auto;          /* Add scrolling if content exceeds the height */
+            margin-top: 20px;          /* Add space above the box */
+        }
+    </style>
+</head>
+<body>
+    <h1>Send SMS</h1>
+    <form id="smsForm">
+        <label for="msisdn">Phone Number:</label><br>
+        <input type="text" id="msisdn" name="msisdn" required><br><br>       
+        <label for="message">Message:</label><br>
+        <textarea id="message" name="message" rows="4" cols="50" required></textarea><br><br>
+        <button type="submit">Send Message</button>
+    </form>
+
+    <h2>Status Updates</h2>
+    <div id="statusBox">
+        <p>No updates yet.</p>
+    </div>
+
+    <script>
+        document.getElementById('smsForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form from submitting normally
+    
+            const formData = new FormData(this);
+    
+            // Send the initial SMS request to the backend
+            fetch('/send-sms/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display the initial SMS response in the statusBox
+                document.getElementById('statusBox').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                console.log('Initial response received:', data);
+    
+                // Now connect to the WebSocket to listen for DLR updates
+                const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+                const socketUrl = `${protocol}${window.location.host}/ws/dlr-updates/`;
+                const socket = new WebSocket(socketUrl);
+
+                console.log('WebSocket connection opened');
+
+                socket.onmessage = function(event) {
+                    const dlrData = JSON.parse(event.data);
+    
+                    // Update the statusBox with DLR information, replacing the initial response
+                    const newParagraph = document.createElement('p');
+                    newParagraph.textContent = dlrData.message;
+    
+                    // Replace the content of the statusBox with new DLR updates
+                    document.getElementById('statusBox').innerHTML = ''; // Clear previous content
+                    document.getElementById('statusBox').innerHTML = `<pre>${JSON.stringify(dlrData.message, null, 4)}</pre>`;
+    
+                    console.log('DLR Update received:', dlrData.message);
+                };
+    
+                socket.onclose = function(event) {
+                    console.error('WebSocket closed:', event);
+                };
+    
+            })
+            .catch(error => {
+                console.error('Error sending message:', error);
+                document.getElementById('statusBox').innerText = 'Failed to send message.';
+            });
+        });
+    </script>
+</body>
+</html>
