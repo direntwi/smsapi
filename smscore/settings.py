@@ -30,9 +30,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-HOST_URL = os.environ.get("HOST_URL")
+HOST = os.environ.get("HOST_URL")
 
-ALLOWED_HOSTS = [HOST_URL, "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = [HOST, "127.0.0.1", "localhost"]
 
 
 # Application definition
@@ -139,6 +139,7 @@ KEY = os.environ.get("KEY")
 SENDER_ID = os.environ.get("SENDER_ID")
 CALLBACK_URL = os.environ.get("CALLBACK_URL")
 NGROK_URL = os.environ.get("NGROK_URL")
+HOST_URL = os.environ.get("HOST_URL")
 
 CSRF_TRUSTED_ORIGINS = [HOST_URL]
 
