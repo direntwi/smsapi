@@ -10,7 +10,7 @@
         #statusBox {
             border: 2px solid black;   /* Black outline */
             padding: 20px;             /* Padding inside the box */
-            width: 20%;                /* Adjust width as needed */
+            width: 40%;                /* Adjust width as needed */
             height: 230px;             /* Set height as per your preference */
             overflow-y: auto;          /* Add scrolling if content exceeds the height */
             margin-top: 20px;          /* Add space above the box */
@@ -33,36 +33,12 @@
     </div>
 
     <script>
-        let lastLine = '';  // To store the last checked line
-
-        // Function to poll the log file
-        function pollLogFile() {
-            console.log('Polling the log file...');
-
-            fetch('/dlr-updates/')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Log data received:', data);  // Check what is being returned
-                    // const newLine = data.last_line ? data.last_line.trim() : '';  // Trim any extra spaces/newlines
-
-                    // Check if the last line has changed
-                    if (data && data !== lastLine) {
-                        lastLine = data;  // Update lastLine with new content
-                        document.getElementById('statusBox').innerHTML = `<pre>${JSON.stringify(data, null, 4)}</pre>`;
-                        console.log('Updated status box with new line:', newLine);  // Log the update
-                    } else {
-                        console.log('No new updates found in the log file.');
-                    }
-                })
-                .catch(error => console.error('Error checking log file:', error));
-        }
-
-        // Function to handle the initial SMS form submission
         document.getElementById('smsForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-
+            event.preventDefault(); // Prevent form from submitting normally
+    
             const formData = new FormData(this);
-
+    
+            // Send the initial SMS request to the backend
             fetch('/send-sms/', {
                 method: 'POST',
                 body: formData,
@@ -72,13 +48,35 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Initial response received:', data);
-
-                // Display the first response
+                // Display the initial SMS response in the statusBox
                 document.getElementById('statusBox').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                console.log('Initial response received:', data);
+    
+                // Now connect to the WebSocket to listen for DLR updates
+                const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+                const socketUrl = `${protocol}${window.location.host}/ws/dlr-updates/`;
+                const socket = new WebSocket(socketUrl);
 
-                // Start polling after the first response
-                setInterval(pollLogFile, 5000);
+                console.log('WebSocket connection opened');
+
+                socket.onmessage = function(event) {
+                    const dlrData = JSON.parse(event.data);
+    
+                    // Update the statusBox with DLR information, replacing the initial response
+                    const newParagraph = document.createElement('p');
+                    newParagraph.textContent = dlrData.message;
+    
+                    // Replace the content of the statusBox with new DLR updates
+                    document.getElementById('statusBox').innerHTML = ''; // Clear previous content
+                    document.getElementById('statusBox').innerHTML = `<pre>${JSON.stringify(dlrData.message, null, 4)}</pre>`;
+    
+                    console.log('DLR Update received:', dlrData.message);
+                };
+    
+                socket.onclose = function(event) {
+                    console.error('WebSocket closed:', event);
+                };
+    
             })
             .catch(error => {
                 console.error('Error sending message:', error);
