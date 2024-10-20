@@ -30,7 +30,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+HOST_URL = os.environ.get("HOST_URL")
+
+ALLOWED_HOSTS = [HOST_URL, "127.0.0.1", "localhost"]
 
 
 # Application definition
@@ -50,6 +52,7 @@ ASGI_APPLICATION = "smscore.asgi.application"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -137,10 +140,14 @@ SENDER_ID = os.environ.get("SENDER_ID")
 CALLBACK_URL = os.environ.get("CALLBACK_URL")
 NGROK_URL = os.environ.get("NGROK_URL")
 
-CSRF_TRUSTED_ORIGINS = [NGROK_URL]
+CSRF_TRUSTED_ORIGINS = [HOST_URL]
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels.layers.InMemoryChannelLayer",
     }
 }
+
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
