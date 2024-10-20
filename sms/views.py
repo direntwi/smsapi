@@ -24,18 +24,22 @@ def send_sms(request):
         phone = request.POST.get("msisdn")
         message = request.POST.get("message")
 
+        key = settings.KEY
+        sender_id = settings.SENDER_ID
+
         data = {
-            "key": "niv)woxhjpandc#s93icje1xej6d(j#k1(4ag#g0j0zshl04f61xheuzjlvoaxv)",
+            "key": key,
             "msisdn": phone,
             "message": message,
-            "sender_id": "Test",
-            "callback_url": "https://smsapi-production-b762.up.railway.app/callback-url/",
+            "sender_id": sender_id,
+            # "callback_url": callback_url,
+            "callback_url":"https://smsapi-production-b762.up.railway.app/callback-url/"
         }
         try:
             response = requests.post(settings.API_URL, data=data)
-            if response.status_code == 200:
-                print(JsonResponse(response.json()))
-                return JsonResponse(response.json())
+            api_response = response.json()  # Parse the JSON response
+            if response.status_code == 200 and api_response.get("status") == "1701":
+                return JsonResponse(api_response)
             else:
                 return JsonResponse(
                     {"success": False, "message": "Failed to send message."}
@@ -46,23 +50,11 @@ def send_sms(request):
     return render(request, "sms/sms_1.html")
 
 
-# @csrf_exempt
-# def receive_dlr(request):
-#     if request.method == "POST":
-#         dlr_data = request.body.decode("utf-8")  # Get DLR data from request
-#         logging.info(dlr_data)  # Log the DLR into a separate log file
-
-#         # Respond to acknowledge receipt of the DLR
-#         return HttpResponse("DLR received", status=200)
-
-
 @csrf_exempt
 def receive_dlr(request):
     if request.method == "POST":
         dlr_data = request.body.decode("utf-8")  # Get DLR data from request
-        print(dlr_data)
-        logging.info(dlr_data)  # Log the DLR into a separate log file
-        # Broadcast to WebSocket group
+        logging.info(dlr_data)
         channel_layer = get_channel_layer()
         dlr_data = json.loads(dlr_data)
         async_to_sync(channel_layer.group_send)(
@@ -72,6 +64,4 @@ def receive_dlr(request):
                 "message": dlr_data,
             },
         )
-
-        # Respond to acknowledge receipt of the DLR
         return HttpResponse("DLR received", status=200)
