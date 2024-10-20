@@ -53,7 +53,10 @@
                 console.log('Initial response received:', data);
     
                 // Now connect to the WebSocket to listen for DLR updates
-                const socket = new WebSocket('ws://' + window.location.host + '/ws/dlr-updates/');
+                const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+                const socketUrl = `${protocol}${window.location.host}/ws/dlr-updates/`;
+                const socket = new WebSocket(socketUrl);
+
                 console.log('WebSocket connection opened');
 
                 socket.onmessage = function(event) {
