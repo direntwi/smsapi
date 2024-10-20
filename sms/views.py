@@ -29,7 +29,7 @@ def send_sms(request):
             "msisdn": phone,
             "message": message,
             "sender_id": settings.SENDER_ID,
-            "callback_url": settings.CALLBACK_URL,
+            "callback_url": "https://smsapi-production-b762.up.railway.app/callback-url/",
         }
         try:
             response = requests.post(settings.API_URL, data=data)
