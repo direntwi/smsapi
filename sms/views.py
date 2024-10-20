@@ -25,16 +25,15 @@ def send_sms(request):
         message = request.POST.get("message")
 
         data = {
-            "key": settings.KEY,
+            "key": "niv)woxhjpandc#s93icje1xej6d(j#k1(4ag#g0j0zshl04f61xheuzjlvoaxv)",
             "msisdn": phone,
             "message": message,
-            "sender_id": settings.SENDER_ID,
+            "sender_id": "Test",
             "callback_url": "https://smsapi-production-b762.up.railway.app/callback-url/",
         }
         try:
             response = requests.post(settings.API_URL, data=data)
-            api_response = response.json()
-            if response.status_code == 200 and api_response.get("status") == "1701":
+            if response.status_code == 200:
                 print(JsonResponse(response.json()))
                 return JsonResponse(response.json())
             else:
