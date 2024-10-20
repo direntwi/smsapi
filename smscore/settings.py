@@ -32,7 +32,12 @@ DEBUG = True
 
 HOST = os.environ.get("HOST_URL")
 
-ALLOWED_HOSTS = [HOST, "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = [
+    HOST,
+    "127.0.0.1",
+    "localhost",
+    "smsapi-production-b762.up.railway.app",
+]
 
 
 # Application definition
@@ -141,7 +146,7 @@ CALLBACK_URL = os.environ.get("CALLBACK_URL")
 NGROK_URL = os.environ.get("NGROK_URL")
 HOST_URL = os.environ.get("HOST_URL")
 
-CSRF_TRUSTED_ORIGINS = [HOST_URL]
+CSRF_TRUSTED_ORIGINS = [HOST_URL, "https://smsapi-production-b762.up.railway.app"]
 
 CHANNEL_LAYERS = {
     "default": {
