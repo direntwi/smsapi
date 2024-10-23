@@ -18,22 +18,18 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-HOST = os.environ.get("HOST")
-HOST_URL = os.environ.get("HOST_URL")
-NGROK_URL = os.environ.get("NGROK_URL")
-NGROK_HOST = os.environ.get("NGROK_HOST")
+
 API_URL = os.environ.get("API_URL")
 KEY = os.environ.get("KEY")
 SENDER_ID = os.environ.get("SENDER_ID")
 CALLBACK_URL = os.environ.get("CALLBACK_URL")
+REDIS_URL = os.environ.get("REDIS_URL")
 
 
 ALLOWED_HOSTS = [
-    HOST,
     "127.0.0.1",
     "localhost",
     "smsapi-production-b762.up.railway.app",
-    NGROK_HOST,
 ]
 
 # For railway deployment
@@ -152,7 +148,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("redis://default:DnUWdUATsAppLRtWoYItmiPVfPkBsLBG@junction.proxy.rlwy.net:12245")],
+            "hosts": [(REDIS_URL)],
         },
     },
 }

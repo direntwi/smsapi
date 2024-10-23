@@ -56,7 +56,6 @@
                 const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
                 const socketUrl = `${protocol}${window.location.host}/ws/dlr-updates/`;
                 const socket = new WebSocket(socketUrl);
-                // const socket = new WebSocket("wss://smsapi-production-b762.up.railway.app/ws/dlr-updates/")
 
                 console.log('WebSocket connection opened');
 

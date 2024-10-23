@@ -26,14 +26,15 @@ def send_sms(request):
 
         key = settings.KEY
         sender_id = settings.SENDER_ID
-
+        callback_url = settings.CALLBACK_URL
+        
         data = {
             "key": key,
             "msisdn": phone,
             "message": message,
             "sender_id": sender_id,
-            # "callback_url": callback_url,
-            "callback_url":"https://smsapi-production-b762.up.railway.app/callback-url/"
+            "callback_url": callback_url,
+            
         }
         try:
             response = requests.post(settings.API_URL, data=data)
