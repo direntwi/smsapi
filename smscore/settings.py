@@ -152,7 +152,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [os.environ.get("REDIS_URL")],
+            "hosts": [("redis://default:DnUWdUATsAppLRtWoYItmiPVfPkBsLBG@junction.proxy.rlwy.net:12245")],
         },
     },
 }
